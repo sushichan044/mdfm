@@ -5,5 +5,5 @@ package version
 // Version is the current version of mdfm.
 // This value is automatically updated by tagpr during the release process.
 const (
-	Version = "0.0.1"
+	Version = "0.1.0"
 )
