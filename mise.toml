@@ -10,7 +10,7 @@ enter = "echo 'Auto-syncing AI Rules...' && mise run apply"
 
 [tasks.dev]
 description = "Run the application in development mode"
-run = "go run ."
+run = "go run ./cmd/cli"
 
 [tasks.lint]
 description = "Run golangci-lint"

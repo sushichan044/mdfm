@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-glob-frontmatter is a Go CLI tool that finds files matching glob patterns while respecting Git ignore rules. The tool is designed to support frontmatter parsing (currently TODO).
+fmx is a Go CLI tool / Library that finds files matching glob patterns while respecting Git ignore rules.
 
 ## Development Commands
 

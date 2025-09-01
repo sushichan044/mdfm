@@ -19,9 +19,9 @@ universal_binaries:
   - replace: true
 
 builds:
-  - main: ./main.go
-    id: glob-frontmatter
-    binary: glob-frontmatter
+  - main: ./cmd/cli
+    id: fmx
+    binary: fmx
     env:
       - CGO_ENABLED=0
     goos:
@@ -61,7 +61,7 @@ changelog:
 release:
   github:
     owner: sushichan044
-    name: glob-frontmatter
+    name: fmx
   footer: >-
 
     ---
