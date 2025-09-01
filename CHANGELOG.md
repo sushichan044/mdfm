@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.2](https://github.com/sushichan044/mdfm/compare/v0.1.1...v0.1.2) - 2025-09-01
+- fix: do not create release from tagpr by @sushichan044 in https://github.com/sushichan044/mdfm/pull/9
+
 ## [v0.1.1](https://github.com/sushichan044/mdfm/compare/v0.1.0...v0.1.1) - 2025-09-01
 - build: enable immutable release by @sushichan044 in https://github.com/sushichan044/mdfm/pull/8
 
