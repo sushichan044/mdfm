@@ -50,7 +50,8 @@ jobs:
       - name: Switch to PR
         id: switch-to-pr
         run: |
-          git reset --hard HEAD
+          # Stash including untracked files to prevent "would be overwritten by checkout" errors
+          git stash push -u -m "pre-switch-to-pr" || true
           PR_NUMBER=$(gh pr list --author "github-actions[bot]" --state 'open' --json 'number,headRefName' --jq '.[] | select(.headRefName | startswith("tagpr-from")) | .number')
 
           if [ -z "$PR_NUMBER" ]; then
@@ -59,8 +60,15 @@ jobs:
             exit 0
           fi
 
-          gh pr checkout "$PR_NUMBER"
+          # Try checkout to the PR branch; if it still fails for some reason, show diagnostics
+          if ! gh pr checkout "$PR_NUMBER"; then
+            echo "::error::Failed to checkout PR #$PR_NUMBER"
+            git status --porcelain || true
+            exit 1
+          fi
+
           echo "should-continue=true" >> "$GITHUB_OUTPUT"
+          echo "pr-number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -81,6 +89,6 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.svu.outputs.next }}"
           git push
 
-          gh pr edit "$PR_NUMBER" --title "Release for v${{ steps.svu.outputs.next }}"
+          gh pr edit "${{ steps.switch-to-pr.outputs.pr-number }}" --title "Release for v${{ steps.svu.outputs.next }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
