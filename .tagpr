@@ -49,3 +49,5 @@
 	vPrefix = true
 	releaseBranch = main
 	versionFile = version/version.go
+	# GitHub Releases will be created by GoReleaser
+	release = false
