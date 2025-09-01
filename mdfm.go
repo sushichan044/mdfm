@@ -12,18 +12,18 @@
 //		Published bool     `yaml:"published"`
 //	}
 //
-//	results, err := mdfm.GlobFrontMatter[BlogPost]("content/**/*.md")
+//	tasks, err := mdfm.GlobFrontMatter[BlogPost]("content/**/*.md")
 //	if err != nil {
 //		log.Fatal(err)
 //	}
 //
-//	for _, result := range results {
-//		if result.Result.Err != nil {
-//			fmt.Printf("Error: %v\n", result.Result.Err)
+//	for _, task := range tasks {
+//		if task.Result.Err != nil {
+//			fmt.Fprintf(os.Stderr, "error processing %s: %s", task.Metadata.Path, task.Result.Err)
 //			continue
 //		}
 //
-//		post := result.Result.Value
+//		post := task.Result.Value
 //		fmt.Printf("Title: %s\n", post.FrontMatter.Title)
 //		fmt.Printf("Content: %s\n", post.Body)
 //	}
@@ -40,37 +40,43 @@ import (
 	"github.com/sushichan044/mdfm/internal/markdown"
 )
 
-// MarkdownDocument represents a Markdown file with its parsed frontmatter and content.
-// The type parameter T specifies the structure of the frontmatter metadata.
-//
-// Example:
-//
-//	type Metadata struct {
-//		Title  string `yaml:"title"`
-//		Author string `yaml:"author"`
-//	}
-//
-//	var doc MarkdownDocument[Metadata]
-//	fmt.Println(doc.FrontMatter.Title) // Access frontmatter
-//	fmt.Println(doc.Body)              // Access markdown content
-type MarkdownDocument[T any] struct {
-	// FrontMatter contains the parsed metadata from the document's frontmatter.
-	// The structure depends on the type parameter T provided to GlobFrontMatter.
-	FrontMatter T
+type (
+	// MarkdownDocument represents a Markdown file with its parsed frontmatter and content.
+	// The type parameter T specifies the structure of the frontmatter metadata.
+	//
+	// Example:
+	//
+	//	type Metadata struct {
+	//		Title  string `yaml:"title"`
+	//		Author string `yaml:"author"`
+	//	}
+	//
+	//	var doc MarkdownDocument[Metadata]
+	//	fmt.Println(doc.FrontMatter.Title) // Access frontmatter
+	//	fmt.Println(doc.Body)              // Access markdown content
+	MarkdownDocument[T any] struct {
+		// FrontMatter contains the parsed metadata from the document's frontmatter.
+		// The structure depends on the type parameter T provided to GlobFrontMatter.
+		FrontMatter T
 
-	// Body contains the raw markdown content without the frontmatter.
-	// This includes all content after the frontmatter delimiter (--- or +++).
-	Body string
-}
+		// Body contains the raw markdown content without the frontmatter.
+		// This includes all content after the frontmatter delimiter.
+		Body string
+	}
 
-// MarkdownDocumentMetadata contains metadata about the processing of a Markdown file.
-// This is separate from the frontmatter content and provides information about
-// the file itself during processing.
-type MarkdownDocumentMetadata struct {
-	// Path is the file system path to the markdown file, relative to the
-	// current working directory when GlobFrontMatter was called.
-	Path string
-}
+	// MarkdownDocumentMetadata contains metadata about the processing of a Markdown file.
+	// This is separate from the frontmatter content and provides information about
+	// the file itself during processing.
+	MarkdownDocumentMetadata struct {
+		// Path is the file system path to the markdown file, relative to the
+		// current working directory when GlobFrontMatter was called.
+		Path string
+	}
+)
+
+const (
+	readConcurrency = 10
+)
 
 // GlobFrontMatter finds Markdown files matching the given glob pattern and
 // extracts their frontmatter metadata concurrently. It respects Git ignore rules
@@ -104,19 +110,19 @@ type MarkdownDocumentMetadata struct {
 //		Published bool      `yaml:"published"`
 //	}
 //
-//	results, err := GlobFrontMatter[Article]("content/**/*.md")
+//	tasks, err := GlobFrontMatter[Article]("content/**/*.md")
 //	if err != nil {
 //		log.Fatalf("Failed to glob files: %v", err)
 //	}
 //
-//	for _, result := range results {
-//		if result.Result.Err != nil {
+//	for _, task := range tasks {
+//		if task.Result.Err != nil {
 //			fmt.Printf("Error processing %s: %v\n",
-//				result.Metadata.Path, result.Result.Err)
+//				task.Metadata.Path, task.Result.Err)
 //			continue
 //		}
 //
-//		article := result.Result.Value
+//		article := task.Result.Value
 //		if article.FrontMatter.Published {
 //			fmt.Printf("Published: %s by %s\n",
 //				article.FrontMatter.Title, article.FrontMatter.Author)
@@ -125,7 +131,7 @@ type MarkdownDocumentMetadata struct {
 //
 // For dynamic frontmatter (when structure is unknown):
 //
-//	results, err := GlobFrontMatter[map[string]any]("**/*.md")
+//	tasks, err := GlobFrontMatter[map[string]any]("**/*.md")
 //	// ... handle results with type assertions
 func GlobFrontMatter[T any](
 	glob string,
@@ -144,8 +150,7 @@ func GlobFrontMatter[T any](
 		}
 	})
 
-	results := concurrent.RunAll(tasks)
-	return results, nil
+	return concurrent.RunAll(tasks, concurrent.WithMaxConcurrency(readConcurrency)), nil
 }
 
 // processMarkdownFile reads and parses a single Markdown file.

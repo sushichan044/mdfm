@@ -30,26 +30,26 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	globResult, err := mdfm.GlobFrontMatter[map[string]any](cmd.Pattern)
+	tasks, err := mdfm.GlobFrontMatter[map[string]any](cmd.Pattern)
 
 	if err != nil {
 		return err
 	}
 
-	for _, m := range globResult {
-		if m.Result.Err != nil {
-			fmt.Fprintf(os.Stderr, "error processing %s: %s", m.Metadata.Path, m.Result.Err)
+	for _, task := range tasks {
+		if task.Result.Err != nil {
+			fmt.Fprintf(os.Stderr, "error processing %s: %s", task.Metadata.Path, task.Result.Err)
 			continue
 		}
 
 		payload := jsonPayload{
-			Path:        m.Metadata.Path,
-			FrontMatter: m.Result.Value.FrontMatter,
+			Path:        task.Metadata.Path,
+			FrontMatter: task.Result.Value.FrontMatter,
 		}
 
 		jsonData, marshalErr := json.MarshalIndent(payload, "", "  ")
 		if marshalErr != nil {
-			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", m.Metadata.Path, marshalErr)
+			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", task.Metadata.Path, marshalErr)
 			continue
 		}
 

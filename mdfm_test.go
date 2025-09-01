@@ -121,14 +121,14 @@ func TestGlobFrontMatter_BasicFunctionality(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			results, err := mdfm.GlobFrontMatter[testMetadata](tt.pattern)
+			tasks, err := mdfm.GlobFrontMatter[testMetadata](tt.pattern)
 			require.NoError(t, err)
-			assert.Len(t, results, tt.expectedCount)
+			assert.Len(t, tasks, tt.expectedCount)
 
 			var actualTitles []string
-			for _, result := range results {
-				if result.Result.Err == nil && result.Result.Value.FrontMatter.Title != "" {
-					actualTitles = append(actualTitles, result.Result.Value.FrontMatter.Title)
+			for _, task := range tasks {
+				if task.Result.Err == nil && task.Result.Value.FrontMatter.Title != "" {
+					actualTitles = append(actualTitles, task.Result.Value.FrontMatter.Title)
 				}
 			}
 
@@ -142,16 +142,16 @@ func TestGlobFrontMatter_BasicFunctionality(t *testing.T) {
 func TestGlobFrontMatter_ErrorHandling(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
 	require.NoError(t, err)
 
 	var errorCount int
 	var successCount int
 
-	for _, result := range results {
-		if result.Result.Err != nil {
+	for _, task := range tasks {
+		if task.Result.Err != nil {
 			errorCount++
-			t.Logf("Error processing %s: %v", result.Metadata.Path, result.Result.Err)
+			t.Logf("Error processing %s: %v", task.Metadata.Path, task.Result.Err)
 		} else {
 			successCount++
 		}
@@ -164,56 +164,56 @@ func TestGlobFrontMatter_ErrorHandling(t *testing.T) {
 func TestGlobFrontMatter_FrontMatterParsing(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("blog/post1.md")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("blog/post1.md")
 	require.NoError(t, err)
-	require.Len(t, results, 1)
+	require.Len(t, tasks, 1)
 
-	result := results[0]
-	require.NoError(t, result.Result.Err)
-	require.NotNil(t, result.Result.Value)
+	task := tasks[0]
+	require.NoError(t, task.Result.Err)
+	require.NotNil(t, task.Result.Value)
 
-	fm := result.Result.Value.FrontMatter
+	fm := task.Result.Value.FrontMatter
 	assert.Equal(t, "First Post", fm.Title)
 	assert.Equal(t, "This is the first post", fm.Description)
 	assert.Equal(t, []string{"golang", "testing"}, fm.Tags)
 	assert.True(t, fm.Published)
 
-	assert.Contains(t, result.Result.Value.Body, "This is the content of the first post.")
-	assert.Equal(t, "blog/post1.md", result.Metadata.Path)
+	assert.Contains(t, task.Result.Value.Body, "This is the content of the first post.")
+	assert.Equal(t, "blog/post1.md", task.Metadata.Path)
 }
 
 func TestGlobFrontMatter_NoFrontMatter(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("no-frontmatter.md")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("no-frontmatter.md")
 	require.NoError(t, err)
-	require.Len(t, results, 1)
+	require.Len(t, tasks, 1)
 
-	result := results[0]
-	require.NoError(t, result.Result.Err)
-	require.NotNil(t, result.Result.Value)
+	task := tasks[0]
+	require.NoError(t, task.Result.Err)
+	require.NotNil(t, task.Result.Value)
 
-	fm := result.Result.Value.FrontMatter
+	fm := task.Result.Value.FrontMatter
 	assert.Empty(t, fm.Title)
 	assert.Empty(t, fm.Description)
 	assert.Empty(t, fm.Tags)
 	assert.False(t, fm.Published)
 
-	assert.Contains(t, result.Result.Value.Body, "# No Frontmatter")
+	assert.Contains(t, task.Result.Value.Body, "# No Frontmatter")
 }
 
 func TestGlobFrontMatter_EmptyFile(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("empty.md")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("empty.md")
 	require.NoError(t, err)
-	require.Len(t, results, 1)
+	require.Len(t, tasks, 1)
 
-	result := results[0]
-	require.NoError(t, result.Result.Err)
-	require.NotNil(t, result.Result.Value)
+	task := tasks[0]
+	require.NoError(t, task.Result.Err)
+	require.NotNil(t, task.Result.Value)
 
-	assert.Empty(t, result.Result.Value.Body)
+	assert.Empty(t, task.Result.Value.Body)
 }
 
 func TestGlobFrontMatter_GitIgnoreRespect(t *testing.T) {
@@ -234,12 +234,12 @@ ignored/
 	ignoredInDir := filepath.Join(ignoredDir, "test.md")
 	require.NoError(t, os.WriteFile(ignoredInDir, []byte("# Ignored"), 0644))
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("**/*")
 	require.NoError(t, err)
 
 	var paths []string
-	for _, result := range results {
-		paths = append(paths, result.Metadata.Path)
+	for _, task := range tasks {
+		paths = append(paths, task.Metadata.Path)
 	}
 
 	assert.NotContains(t, paths, "blog/draft.md")
@@ -257,13 +257,13 @@ func TestGlobFrontMatter_InvalidGlobPattern(t *testing.T) {
 func TestGlobFrontMatter_ConcurrentProcessing(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
+	tasks, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
 	require.NoError(t, err)
 
-	assert.Greater(t, len(results), 1, "Should process multiple files")
+	assert.Greater(t, len(tasks), 1, "Should process multiple files")
 
-	for _, result := range results {
-		assert.NotEmpty(t, result.Metadata.Path, "Each result should have a path")
+	for _, task := range tasks {
+		assert.NotEmpty(t, task.Metadata.Path, "Each result should have a path")
 	}
 }
 
@@ -271,14 +271,14 @@ func TestGlobFrontMatter_DifferentMetadataTypes(t *testing.T) {
 	setupTestFiles(t)
 
 	t.Run("map[string]any", func(t *testing.T) {
-		results, err := mdfm.GlobFrontMatter[map[string]any]("blog/post1.md")
+		tasks, err := mdfm.GlobFrontMatter[map[string]any]("blog/post1.md")
 		require.NoError(t, err)
-		require.Len(t, results, 1)
+		require.Len(t, tasks, 1)
 
-		result := results[0]
-		require.NoError(t, result.Result.Err)
+		task := tasks[0]
+		require.NoError(t, task.Result.Err)
 
-		fm := result.Result.Value.FrontMatter
+		fm := task.Result.Value.FrontMatter
 		assert.Equal(t, "First Post", fm["title"])
 		assert.Equal(t, true, fm["published"])
 	})
@@ -288,14 +288,14 @@ func TestGlobFrontMatter_DifferentMetadataTypes(t *testing.T) {
 			Title string `yaml:"title"`
 		}
 
-		results, err := mdfm.GlobFrontMatter[simpleMetadata]("blog/post1.md")
+		tasks, err := mdfm.GlobFrontMatter[simpleMetadata]("blog/post1.md")
 		require.NoError(t, err)
-		require.Len(t, results, 1)
+		require.Len(t, tasks, 1)
 
-		result := results[0]
-		require.NoError(t, result.Result.Err)
+		task := tasks[0]
+		require.NoError(t, task.Result.Err)
 
-		fm := result.Result.Value.FrontMatter
+		fm := task.Result.Value.FrontMatter
 		assert.Equal(t, "First Post", fm.Title)
 	})
 }
