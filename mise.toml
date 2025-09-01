@@ -5,9 +5,6 @@ golangci-lint = "latest"
 GO111MODULE = "on"
 GOFLAGS = "-mod=readonly"
 
-[hooks]
-enter = "echo 'Auto-syncing AI Rules...' && mise run apply"
-
 [tasks.dev]
 description = "Run the application in development mode"
 run = "go run ./cmd/cli"
