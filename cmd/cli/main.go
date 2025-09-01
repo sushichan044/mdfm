@@ -47,7 +47,7 @@ func (cmd *CLI) Run() error {
 			FrontMatter: m.Result.Value.FrontMatter,
 		}
 
-		jsonData, marshalErr := json.Marshal(payload)
+		jsonData, marshalErr := json.MarshalIndent(payload, "", "  ")
 		if marshalErr != nil {
 			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", m.Metadata.Path, marshalErr)
 			continue
