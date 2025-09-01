@@ -129,7 +129,7 @@ type MarkdownDocumentMetadata struct {
 //	// ... handle results with type assertions
 func GlobFrontMatter[T any](
 	glob string,
-) ([]concurrent.TaskResult[*MarkdownDocument[T], MarkdownDocumentMetadata], error) {
+) ([]concurrent.TaskExecution[*MarkdownDocument[T], MarkdownDocumentMetadata], error) {
 	matched, err := runGlob(glob)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func GlobFrontMatter[T any](
 		}
 	})
 
-	results := concurrent.RunAll(tasks...)
+	results := concurrent.RunAll(tasks)
 	return results, nil
 }
 

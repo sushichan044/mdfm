@@ -9,23 +9,24 @@ import (
 )
 
 func TestRunAll_SuccessAndError(t *testing.T) {
-	results := concurrent.RunAll(
-		concurrent.Task[int, string]{
+	tasks := []concurrent.Task[int, string]{
+		{
 			Metadata: "task-1",
 			Run:      func() (int, error) { return 1, nil },
 		},
-		concurrent.Task[int, string]{
+		{
 			Metadata: "task-2",
 			Run:      func() (int, error) { return 0, errors.New("boom") },
 		},
-		concurrent.Task[int, string]{
+		{
 			Metadata: "task-3",
 			Run: func() (int, error) {
 				time.Sleep(10 * time.Millisecond)
 				return 42, nil
 			},
 		},
-	)
+	}
+	results := concurrent.RunAll(tasks, concurrent.WithMaxConcurrency(2))
 
 	if len(results) != 3 {
 		t.Fatalf("expected 3 results, got %d", len(results))
@@ -45,16 +46,17 @@ func TestRunAll_SuccessAndError(t *testing.T) {
 }
 
 func TestRunAll_PanicRecovery(t *testing.T) {
-	results := concurrent.RunAll(
-		concurrent.Task[string, string]{
+	tasks := []concurrent.Task[string, string]{
+		{
 			Metadata: "good-task",
 			Run:      func() (string, error) { return "ok", nil },
 		},
-		concurrent.Task[string, string]{
+		{
 			Metadata: "panic-task",
 			Run:      func() (string, error) { panic("kaboom") },
 		},
-	)
+	}
+	results := concurrent.RunAll(tasks, concurrent.WithMaxConcurrency(2))
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
