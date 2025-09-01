@@ -4,7 +4,7 @@ package version
 
 // Version is the current version of fmx.
 // This value is automatically updated by goreleaser during the build process.
-// For development builds, this defaults to "0.0.0".
+// For development builds, this defaults to "0.0.1".
 const (
 	Version = "0.0.0"
 )
