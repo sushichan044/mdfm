@@ -1,7 +1,7 @@
 package markdown
 
 import (
-	"bytes"
+	"io"
 	"strings"
 
 	"github.com/adrg/frontmatter"
@@ -26,10 +26,10 @@ type (
 // provided type T. The rest of the content is returned as a string.
 //
 // If the front matter is not present, FrontMatter will be empty.
-func ParseMarkdownWithMetadata[T any](content []byte) (ParsedMarkdown[T], error) {
+func ParseMarkdownWithMetadata[T any](input io.Reader) (ParsedMarkdown[T], error) {
 	fm := new(T)
 	// Parse the front matter and require it to be present
-	rest, err := frontmatter.Parse(bytes.NewReader(content), fm)
+	rest, err := frontmatter.Parse(input, fm)
 	if err != nil {
 		return ParsedMarkdown[T]{}, err
 	}

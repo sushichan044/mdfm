@@ -1,6 +1,7 @@
 package markdown_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,21 +19,21 @@ type testMetadata struct {
 func TestParseMarkdownWithMetadata(t *testing.T) {
 	tests := []struct {
 		name            string
-		input           []byte
+		input           string
 		expectedMeta    testMetadata
 		expectedContent string
 		expectError     bool
 	}{
 		{
 			name: "successful parsing with metadata",
-			input: []byte(`---
+			input: `---
 title: Test Title
 description: Test Description
 version: 1
 ---
 # Test Content
 
-This is test content.`),
+This is test content.`,
 			expectedMeta: testMetadata{
 				Title:       "Test Title",
 				Description: "Test Description",
@@ -43,9 +44,9 @@ This is test content.`),
 		},
 		{
 			name: "successful parsing with empty metadata",
-			input: []byte(`---
+			input: `---
 ---
-Content only`),
+Content only`,
 			expectedMeta: testMetadata{
 				Title:       "",
 				Description: "",
@@ -56,18 +57,18 @@ Content only`),
 		},
 		{
 			name: "parsing with no frontmatter",
-			input: []byte(`# No Frontmatter
-Just content`),
+			input: `# No Frontmatter
+Just content`,
 			expectedMeta:    testMetadata{},
 			expectedContent: "# No Frontmatter\nJust content",
 			expectError:     false,
 		},
 		{
 			name: "parsing with invalid frontmatter",
-			input: []byte(`---
+			input: `---
 title: "Unclosed quote
 ---
-Content`),
+Content`,
 			expectedMeta:    testMetadata{},
 			expectedContent: "",
 			expectError:     true,
@@ -76,7 +77,7 @@ Content`),
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := markdown.ParseMarkdownWithMetadata[testMetadata](tt.input)
+			result, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(tt.input))
 
 			if tt.expectError {
 				require.Error(t, err)
@@ -90,12 +91,12 @@ Content`),
 	}
 
 	t.Run("metadata value mutation doesn't affect the source", func(t *testing.T) {
-		content := []byte(`---
+		content := `---
 title: Original Title
 ---
-Content`)
+Content`
 
-		result, err := markdown.ParseMarkdownWithMetadata[testMetadata](content)
+		result, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(content))
 		require.NoError(t, err)
 		assert.Equal(t, "Original Title", result.FrontMatter.Title)
 
@@ -103,7 +104,7 @@ Content`)
 		result.FrontMatter.Title = "Modified Title"
 
 		// Parse again and confirm the original values are preserved
-		secondResult, err := markdown.ParseMarkdownWithMetadata[testMetadata](content)
+		secondResult, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(content))
 		require.NoError(t, err)
 		assert.Equal(t, "Original Title", secondResult.FrontMatter.Title)
 	})
