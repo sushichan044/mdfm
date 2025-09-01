@@ -2,8 +2,6 @@ module github.com/sushichan044/fmx
 
 go 1.24.0
 
-toolchain go1.24.4
-
 require (
 	github.com/Songmu/gitconfig v0.2.1
 	github.com/adrg/frontmatter v0.2.0
@@ -11,8 +9,8 @@ require (
 	github.com/basemachina/lo v0.0.0-20250618012814-7ae329aee0ca
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
-	github.com/stretchr/testify v1.7.0
-	github.com/yuin/goldmark v1.7.8
+	github.com/stretchr/testify v1.11.1
+	github.com/yuin/goldmark v1.7.13
 )
 
 require (
