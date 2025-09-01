@@ -24,6 +24,7 @@ type (
 	}
 
 	jsonPayload struct {
+		Body        string `json:"body"`
 		Path        string `json:"path"`
 		FrontMatter any    `json:"frontMatter"`
 	}
@@ -43,6 +44,7 @@ func (cmd *CLI) Run() error {
 		}
 
 		payload := jsonPayload{
+			Body:        task.Result.Value.Body,
 			Path:        task.Metadata.Path,
 			FrontMatter: task.Result.Value.FrontMatter,
 		}
