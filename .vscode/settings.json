@@ -1,0 +1,29 @@
+{
+  "[go]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true
+  },
+  "chat.promptFiles": true,
+  "chat.promptFilesLocations": {
+    ".github/prompts": true
+  },
+  "editor.formatOnSave": true,
+  "go.alternateTools": {
+    "customFormatter": "golangci-lint"
+  },
+  "go.formatFlags": [
+    "fmt",
+    "--stdin"
+  ],
+  "go.formatTool": "custom",
+  "go.lintFlags": [
+    "--config=${workspaceFolder}/.golangci.yml"
+  ],
+  "go.lintTool": "golangci-lint",
+  "go.useLanguageServer": true
+}
