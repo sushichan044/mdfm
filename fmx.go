@@ -12,25 +12,27 @@ import (
 )
 
 type (
-	MarkdownFileData[T any] struct {
+	MarkdownDocument[T any] struct {
 		// File path of the markdown file.
 		Path string `json:"path"`
+
 		// Metadata extracted from the markdown file.
 		FrontMatter T `json:"frontMatter"`
+
 		// Raw markdown content except for the front matter.
 		Body string `json:"-"`
 	}
 )
 
-func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownFileData[T]], error) {
+func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownDocument[T]], error) {
 	matched, err := runGlob(glob)
 	if err != nil {
 		return nil, err
 	}
 
 	results := concurrent.RunAll(
-		lo.Map(matched, func(path string) func() (*MarkdownFileData[T], error) {
-			return func() (*MarkdownFileData[T], error) {
+		lo.Map(matched, func(path string) func() (*MarkdownDocument[T], error) {
+			return func() (*MarkdownDocument[T], error) {
 				return processMarkdownFile[T](path)
 			}
 		})...,
@@ -39,7 +41,7 @@ func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownFileD
 	return results, nil
 }
 
-func processMarkdownFile[T any](path string) (*MarkdownFileData[T], error) {
+func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
 	body, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -50,7 +52,7 @@ func processMarkdownFile[T any](path string) (*MarkdownFileData[T], error) {
 		return nil, err
 	}
 
-	return &MarkdownFileData[T]{
+	return &MarkdownDocument[T]{
 		Path:        path,
 		FrontMatter: md.FrontMatter,
 		Body:        md.Content,

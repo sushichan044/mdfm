@@ -19,7 +19,7 @@ var (
 type CLI struct {
 	Pattern string `arg:"" name:"pattern" help:"Glob pattern to match (eg. '**/*.md')"`
 
-	JSON bool `short:"j" help:"Output as JSON"`
+	JSON bool `help:"Output as JSON"`
 
 	Version kong.VersionFlag `short:"v"`
 }

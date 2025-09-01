@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-fmx is a Go CLI tool / Library that finds files matching glob patterns while respecting Git ignore rules.
+fmx is a Go CLI tool / Library that finds Markdown files using glob patterns and extracts their frontmatter metadata while respecting Git ignore rules.
 
 ## Development Commands
 
 The project uses `mise` for task management and development workflow:
 
 - `mise run dev` - Run the application in development mode
+  - e.g. `mise run dev "**/*.md" --json`
 - `mise run test` - Run tests using gotestsum
 - `mise run test-coverage` - Run tests with coverage reporting
 - `mise run lint` - Run golangci-lint for code quality checks
@@ -21,7 +22,8 @@ The project uses `mise` for task management and development workflow:
 
 Standard Go commands also work:
 
-- `go run . "**/*.md"` - Run with example glob pattern
+- `go run ./cmd/cli "**/*.md"` - Find all Markdown files and extract frontmatter
+- `go run ./cmd/cli "content/**/*.md" --json` - Output results as JSON
 - `go test ./...` - Run all tests
 - `go mod tidy` - Clean up dependencies
 
@@ -29,10 +31,15 @@ Standard Go commands also work:
 
 ### Core Structure
 
-- `main.go` - CLI entry point using Kong for argument parsing
+- `cmd/cli/main.go` - CLI entry point using Kong for argument parsing
+- `fmx.go` - Main library API with `GlobFrontMatter` function
 - `internal/gitignore/` - Git ignore handling with support for global/local ignore files
   - `matcher.go` - Main gitignore matching logic
   - `path.go` - Path resolution for various gitignore files
+- `internal/markdown/` - Markdown frontmatter parsing
+  - `parse.go` - Frontmatter extraction and parsing logic
+- `internal/concurrent/` - Concurrent processing utilities
+  - `run_all.go` - Parallel task execution
 - `version/version.go` - Version constant (updated by goreleaser)
 
 ### Key Dependencies
@@ -42,3 +49,5 @@ Standard Go commands also work:
 - `github.com/sabhiram/go-gitignore` - Git ignore pattern matching
 - `github.com/basemachina/lo` - Utility functions (filtering)
 - `github.com/Songmu/gitconfig` - Git configuration access
+- `github.com/adrg/frontmatter` - YAML/TOML frontmatter parsing
+- `github.com/yuin/goldmark` - Markdown parsing
