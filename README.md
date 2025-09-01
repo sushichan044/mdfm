@@ -26,6 +26,12 @@ Install the CLI tool using Go:
 go install github.com/sushichan044/mdfm/cmd/cli@latest
 ```
 
+Or using Homebrew (works on macOS and Linux):
+
+```bash
+brew install --cask sushichan044/tap/mdfm
+```
+
 Or download pre-built binaries from the [releases page](https://github.com/sushichan044/mdfm/releases).
 
 ### Library Installation
