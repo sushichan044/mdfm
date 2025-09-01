@@ -6,6 +6,8 @@
 
 **mdfm** is a Go library and CLI tool that finds Markdown files using glob patterns and extracts their frontmatter metadata as JSON.
 
+![command `go run github.com/sushichan044/mdfm/cmd/cli@latest ".claude/commands/**/*.md" | jq 'pick(.path,.frontMatter)` results: `{"path":".claude/commands/dump.md","frontMatter":{"allowed-tools":"Bash(memo:*)","description":"Dump the current Claude Code session to a markdown file."}}`](/docs/images/example.png)
+
 ## Features
 
 - 🔍 **Glob Pattern Matching**: Find Markdown files using powerful glob patterns like `**/*.md`
