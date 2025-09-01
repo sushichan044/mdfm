@@ -13,7 +13,7 @@ import (
 
 type (
 	MarkdownDocument[T any] struct {
-		// File path of the markdown file.
+		// The path to the markdown file.
 		Path string `json:"path"`
 
 		// Metadata extracted from the markdown file.
@@ -22,22 +22,28 @@ type (
 		// Raw markdown content except for the front matter.
 		Body string `json:"-"`
 	}
+
+	MarkdownFileMetadata struct {
+		Path string
+	}
 )
 
-func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownDocument[T]], error) {
+func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownDocument[T], MarkdownFileMetadata], error) {
 	matched, err := runGlob(glob)
 	if err != nil {
 		return nil, err
 	}
 
-	results := concurrent.RunAll(
-		lo.Map(matched, func(path string) func() (*MarkdownDocument[T], error) {
-			return func() (*MarkdownDocument[T], error) {
+	tasks := lo.Map(matched, func(path string) concurrent.Task[*MarkdownDocument[T], MarkdownFileMetadata] {
+		return concurrent.Task[*MarkdownDocument[T], MarkdownFileMetadata]{
+			Metadata: MarkdownFileMetadata{Path: path},
+			Run: func() (*MarkdownDocument[T], error) {
 				return processMarkdownFile[T](path)
-			}
-		})...,
-	)
+			},
+		}
+	})
 
+	results := concurrent.RunAll(tasks...)
 	return results, nil
 }
 

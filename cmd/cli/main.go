@@ -32,22 +32,22 @@ func (cmd *CLI) Run() error {
 	}
 
 	for _, m := range globResult {
-		if m.Err != nil {
-			return fmt.Errorf("error processing %s: %w", m.Value.Path, m.Err)
+		if m.Result.Err != nil {
+			return fmt.Errorf("error processing %s: %w", m.Metadata.Path, m.Result.Err)
 		}
 
 		if cmd.JSON {
 			// print as json (one line per file)
-			jsonData, marshalErr := json.Marshal(m.Value)
+			jsonData, marshalErr := json.Marshal(m.Result.Value)
 			if marshalErr != nil {
-				return fmt.Errorf("error marshaling JSON for %s: %w", m.Value.Path, marshalErr)
+				return fmt.Errorf("error marshaling JSON for %s: %w", m.Metadata.Path, marshalErr)
 			}
 			fmt.Fprintln(os.Stdout, string(jsonData))
 			continue
 		}
 
 		// default: just print the path
-		fmt.Fprintln(os.Stdout, m.Value.Path)
+		fmt.Fprintln(os.Stdout, m.Metadata.Path)
 	}
 
 	return nil

@@ -10,11 +10,20 @@ import (
 
 func TestRunAll_SuccessAndError(t *testing.T) {
 	results := concurrent.RunAll(
-		func() (int, error) { return 1, nil },
-		func() (int, error) { return 0, errors.New("boom") },
-		func() (int, error) {
-			time.Sleep(10 * time.Millisecond)
-			return 42, nil
+		concurrent.Task[int, string]{
+			Metadata: "task-1",
+			Run:      func() (int, error) { return 1, nil },
+		},
+		concurrent.Task[int, string]{
+			Metadata: "task-2",
+			Run:      func() (int, error) { return 0, errors.New("boom") },
+		},
+		concurrent.Task[int, string]{
+			Metadata: "task-3",
+			Run: func() (int, error) {
+				time.Sleep(10 * time.Millisecond)
+				return 42, nil
+			},
 		},
 	)
 
@@ -22,34 +31,40 @@ func TestRunAll_SuccessAndError(t *testing.T) {
 		t.Fatalf("expected 3 results, got %d", len(results))
 	}
 
-	if results[0].Value != 1 || results[0].Err != nil {
+	if results[0].Metadata != "task-1" || results[0].Result.Value != 1 || results[0].Result.Err != nil {
 		t.Fatalf("unexpected result[0]: %+v", results[0])
 	}
 
-	if results[1].Err == nil {
+	if results[1].Metadata != "task-2" || results[1].Result.Err == nil {
 		t.Fatalf("expected rejection at [1], got: %+v", results[1])
 	}
 
-	if results[2].Value != 42 || results[2].Err != nil {
+	if results[2].Metadata != "task-3" || results[2].Result.Value != 42 || results[2].Result.Err != nil {
 		t.Fatalf("unexpected result[2]: %+v", results[2])
 	}
 }
 
 func TestRunAll_PanicRecovery(t *testing.T) {
 	results := concurrent.RunAll(
-		func() (string, error) { return "ok", nil },
-		func() (string, error) { panic("kaboom") },
+		concurrent.Task[string, string]{
+			Metadata: "good-task",
+			Run:      func() (string, error) { return "ok", nil },
+		},
+		concurrent.Task[string, string]{
+			Metadata: "panic-task",
+			Run:      func() (string, error) { panic("kaboom") },
+		},
 	)
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
 	}
 
-	if results[0].Value != "ok" || results[0].Err != nil {
+	if results[0].Metadata != "good-task" || results[0].Result.Value != "ok" || results[0].Result.Err != nil {
 		t.Fatalf("unexpected result[0]: %+v", results[0])
 	}
 
-	if results[1].Err == nil || results[1].Err.Error() == "" {
+	if results[1].Metadata != "panic-task" || results[1].Result.Err == nil || results[1].Result.Err.Error() == "" {
 		t.Fatalf("expected rejection with panic error at [1], got: %+v", results[1])
 	}
 }

@@ -5,53 +5,66 @@ import (
 	"sync"
 )
 
-// TaskResult is the outcome of a single task.
-type TaskResult[T any] struct {
-	Value T
-	Err   error
-}
+type (
+	// result represents the outcome of a task execution.
+	result[T any] struct {
+		Value T
+		Err   error
+	}
 
-// RunAll runs all given tasks concurrently and waits for all of them to finish.
+	// TaskResult combines task metadata with its execution result.
+	TaskResult[T, M any] struct {
+		Metadata M
+		Result   result[T]
+	}
+
+	// Task combines a task function with its metadata.
+	Task[T, M any] struct {
+		Metadata M
+		Run      func() (T, error)
+	}
+)
+
+// RunAll runs all given tasks with metadata concurrently and waits for all of them to finish.
 // It does not fail fast: even if some tasks return an error or panic, the others keep running.
 // The returned slice preserves the order of the input tasks.
 //
-// Each task is a function returning (T, error). Panics inside tasks are recovered and
+// Each task includes metadata and a function returning (T, error). Panics inside tasks are recovered and
 // exposed as errors in the corresponding Result with a message prefixed by "panic:".
 //
 // Concurrency safety: each goroutine writes to a distinct index in the results slice.
-func RunAll[T any](tasks ...func() (T, error)) []TaskResult[T] {
+func RunAll[T, M any](tasks ...Task[T, M]) []TaskResult[T, M] {
 	n := len(tasks)
-	results := make([]TaskResult[T], n)
+	results := make([]TaskResult[T, M], n)
 
 	var wg sync.WaitGroup
 	wg.Add(n)
 
 	for i, task := range tasks {
-		go func(i int, task func() (T, error)) {
+		go func(i int, task Task[T, M]) {
 			defer wg.Done()
 
 			var zero T
 			// Recover panic and convert into error.
 			defer func() {
 				if rec := recover(); rec != nil {
-					results[i] = TaskResult[T]{
-						Value: zero,
-						Err:   fmt.Errorf("panic: %v", rec),
+					results[i] = TaskResult[T, M]{
+						Metadata: task.Metadata,
+						Result: result[T]{
+							Value: zero,
+							Err:   fmt.Errorf("panic: %v", rec),
+						},
 					}
 				}
 			}()
 
-			v, err := task()
-			if err != nil {
-				results[i] = TaskResult[T]{
-					Value: zero,
+			v, err := task.Run()
+			results[i] = TaskResult[T, M]{
+				Metadata: task.Metadata,
+				Result: result[T]{
+					Value: v,
 					Err:   err,
-				}
-				return
-			}
-			results[i] = TaskResult[T]{
-				Value: v,
-				Err:   nil,
+				},
 			}
 		}(i, task)
 	}
