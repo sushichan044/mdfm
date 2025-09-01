@@ -64,6 +64,11 @@ mdfm "content/**/{blog,docs}/*.md"
 
 The CLI outputs JSON lines, with each line containing:
 
+> [!WARNING]
+> `body` contains the main content of the Markdown file, excluding the frontmatter.
+>
+> Since this typically produces lengthy text, it's strongly recommended to use [jq](https://github.com/jqlang/jq) in conjunction to process only the required data.
+
 ```json
 {
   "path": "content/posts/my-post.md",
@@ -71,7 +76,8 @@ The CLI outputs JSON lines, with each line containing:
     "title": "My Blog Post",
     "date": "2023-12-01",
     "tags": ["golang", "markdown"]
-  }
+  },
+  "body": "This is the content of my blog post."
 }
 ```
 
