@@ -13,30 +13,30 @@ import (
 
 type (
 	MarkdownDocument[T any] struct {
-		// The path to the markdown file.
-		Path string `json:"path"`
-
 		// Metadata extracted from the markdown file.
-		FrontMatter T `json:"frontMatter"`
+		FrontMatter T
 
 		// Raw markdown content except for the front matter.
-		Body string `json:"-"`
+		Body string
 	}
 
-	MarkdownFileMetadata struct {
+	MarkdownDocumentMetadata struct {
+		// The path to the markdown file.
 		Path string
 	}
 )
 
-func GlobFrontMatter[T any](glob string) ([]concurrent.TaskResult[*MarkdownDocument[T], MarkdownFileMetadata], error) {
+func GlobFrontMatter[T any](
+	glob string,
+) ([]concurrent.TaskResult[*MarkdownDocument[T], MarkdownDocumentMetadata], error) {
 	matched, err := runGlob(glob)
 	if err != nil {
 		return nil, err
 	}
 
-	tasks := lo.Map(matched, func(path string) concurrent.Task[*MarkdownDocument[T], MarkdownFileMetadata] {
-		return concurrent.Task[*MarkdownDocument[T], MarkdownFileMetadata]{
-			Metadata: MarkdownFileMetadata{Path: path},
+	tasks := lo.Map(matched, func(path string) concurrent.Task[*MarkdownDocument[T], MarkdownDocumentMetadata] {
+		return concurrent.Task[*MarkdownDocument[T], MarkdownDocumentMetadata]{
+			Metadata: MarkdownDocumentMetadata{Path: path},
 			Run: func() (*MarkdownDocument[T], error) {
 				return processMarkdownFile[T](path)
 			},
@@ -59,7 +59,6 @@ func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
 	}
 
 	return &MarkdownDocument[T]{
-		Path:        path,
 		FrontMatter: md.FrontMatter,
 		Body:        md.Content,
 	}, nil

@@ -16,13 +16,18 @@ var (
 	revision = "dev"
 )
 
-type CLI struct {
-	Pattern string `arg:"" name:"pattern" help:"Glob pattern to match (eg. '**/*.md')"`
+type (
+	CLI struct {
+		Pattern string `arg:"" name:"pattern" help:"Glob pattern to match (eg. '**/*.md')"`
 
-	JSON bool `help:"Output as JSON"`
+		Version kong.VersionFlag `short:"v"`
+	}
 
-	Version kong.VersionFlag `short:"v"`
-}
+	jsonPayload struct {
+		Path        string `json:"path"`
+		FrontMatter any    `json:"frontMatter"`
+	}
+)
 
 func (cmd *CLI) Run() error {
 	globResult, err := fmx.GlobFrontMatter[map[string]any](cmd.Pattern)
@@ -33,21 +38,23 @@ func (cmd *CLI) Run() error {
 
 	for _, m := range globResult {
 		if m.Result.Err != nil {
-			return fmt.Errorf("error processing %s: %w", m.Metadata.Path, m.Result.Err)
-		}
-
-		if cmd.JSON {
-			// print as json (one line per file)
-			jsonData, marshalErr := json.Marshal(m.Result.Value)
-			if marshalErr != nil {
-				return fmt.Errorf("error marshaling JSON for %s: %w", m.Metadata.Path, marshalErr)
-			}
-			fmt.Fprintln(os.Stdout, string(jsonData))
+			fmt.Fprintf(os.Stderr, "error processing %s: %s", m.Metadata.Path, m.Result.Err)
 			continue
 		}
 
-		// default: just print the path
-		fmt.Fprintln(os.Stdout, m.Metadata.Path)
+		payload := jsonPayload{
+			Path:        m.Metadata.Path,
+			FrontMatter: m.Result.Value.FrontMatter,
+		}
+
+		jsonData, marshalErr := json.Marshal(payload)
+		if marshalErr != nil {
+			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", m.Metadata.Path, marshalErr)
+			continue
+		}
+
+		//nolint:forbidigo // This is fine
+		fmt.Printf("%s\n", jsonData)
 	}
 
 	return nil
