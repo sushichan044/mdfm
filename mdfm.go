@@ -157,12 +157,13 @@ func GlobFrontMatter[T any](
 // It extracts frontmatter metadata and returns the processed document.
 // This function is used internally by GlobFrontMatter for concurrent processing.
 func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
-	body, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
-	md, err := markdown.ParseMarkdownWithMetadata[T](body)
+	md, err := markdown.ParseMarkdownWithMetadata[T](f)
 	if err != nil {
 		return nil, err
 	}
