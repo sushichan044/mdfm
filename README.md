@@ -244,17 +244,6 @@ For major changes, please open an issue first to discuss what you would like to 
 
 This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
 
-## Acknowledgments
-
-fmx uses several excellent open-source libraries:
-
-- [doublestar](https://github.com/bmatcuk/doublestar) - Glob pattern matching
-- [go-gitignore](https://github.com/sabhiram/go-gitignore) - Git ignore pattern matching
-- [gitconfig](https://github.com/Songmu/gitconfig) - Git configuration fetching
-- [frontmatter](https://github.com/adrg/frontmatter) - Frontmatter parsing
-- [goldmark](https://github.com/yuin/goldmark) - Markdown processing
-- [kong](https://github.com/alecthomas/kong) - CLI flag parser
-
 ---
 
 Made with ❤️ by [sushichan044](https://github.com/sushichan044)

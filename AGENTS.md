@@ -11,7 +11,7 @@ fmx is a Go CLI tool / Library that finds Markdown files using glob patterns and
 The project uses `mise` for task management and development workflow:
 
 - `mise run dev` - Run the application in development mode
-  - e.g. `mise run dev "**/*.md" --json`
+  - e.g. `mise run dev "**/*.md"`
 - `mise run test` - Run tests using gotestsum
 - `mise run test-coverage` - Run tests with coverage reporting
 - `mise run lint` - Run golangci-lint for code quality checks
@@ -22,8 +22,7 @@ The project uses `mise` for task management and development workflow:
 
 Standard Go commands also work:
 
-- `go run ./cmd/cli "**/*.md"` - Find all Markdown files and extract frontmatter
-- `go run ./cmd/cli "content/**/*.md" --json` - Output results as JSON
+- `go run ./cmd/cli "**/*.md"` - Output results as JSON
 - `go test ./...` - Run all tests
 - `go mod tidy` - Clean up dependencies
 
