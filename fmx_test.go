@@ -1,4 +1,4 @@
-package fmx_test
+package mdfm_test
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sushichan044/fmx"
+	"github.com/sushichan044/mdfm"
 )
 
 type testMetadata struct {
@@ -121,7 +121,7 @@ func TestGlobFrontMatter_BasicFunctionality(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			results, err := fmx.GlobFrontMatter[testMetadata](tt.pattern)
+			results, err := mdfm.GlobFrontMatter[testMetadata](tt.pattern)
 			require.NoError(t, err)
 			assert.Len(t, results, tt.expectedCount)
 
@@ -142,7 +142,7 @@ func TestGlobFrontMatter_BasicFunctionality(t *testing.T) {
 func TestGlobFrontMatter_ErrorHandling(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("**/*.md")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
 	require.NoError(t, err)
 
 	var errorCount int
@@ -164,7 +164,7 @@ func TestGlobFrontMatter_ErrorHandling(t *testing.T) {
 func TestGlobFrontMatter_FrontMatterParsing(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("blog/post1.md")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("blog/post1.md")
 	require.NoError(t, err)
 	require.Len(t, results, 1)
 
@@ -185,7 +185,7 @@ func TestGlobFrontMatter_FrontMatterParsing(t *testing.T) {
 func TestGlobFrontMatter_NoFrontMatter(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("no-frontmatter.md")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("no-frontmatter.md")
 	require.NoError(t, err)
 	require.Len(t, results, 1)
 
@@ -205,7 +205,7 @@ func TestGlobFrontMatter_NoFrontMatter(t *testing.T) {
 func TestGlobFrontMatter_EmptyFile(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("empty.md")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("empty.md")
 	require.NoError(t, err)
 	require.Len(t, results, 1)
 
@@ -234,7 +234,7 @@ ignored/
 	ignoredInDir := filepath.Join(ignoredDir, "test.md")
 	require.NoError(t, os.WriteFile(ignoredInDir, []byte("# Ignored"), 0644))
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("**/*")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*")
 	require.NoError(t, err)
 
 	var paths []string
@@ -250,14 +250,14 @@ ignored/
 func TestGlobFrontMatter_InvalidGlobPattern(t *testing.T) {
 	setupTestFiles(t)
 
-	_, err := fmx.GlobFrontMatter[testMetadata]("[invalid")
+	_, err := mdfm.GlobFrontMatter[testMetadata]("[invalid")
 	assert.Error(t, err)
 }
 
 func TestGlobFrontMatter_ConcurrentProcessing(t *testing.T) {
 	setupTestFiles(t)
 
-	results, err := fmx.GlobFrontMatter[testMetadata]("**/*.md")
+	results, err := mdfm.GlobFrontMatter[testMetadata]("**/*.md")
 	require.NoError(t, err)
 
 	assert.Greater(t, len(results), 1, "Should process multiple files")
@@ -271,7 +271,7 @@ func TestGlobFrontMatter_DifferentMetadataTypes(t *testing.T) {
 	setupTestFiles(t)
 
 	t.Run("map[string]any", func(t *testing.T) {
-		results, err := fmx.GlobFrontMatter[map[string]any]("blog/post1.md")
+		results, err := mdfm.GlobFrontMatter[map[string]any]("blog/post1.md")
 		require.NoError(t, err)
 		require.Len(t, results, 1)
 
@@ -288,7 +288,7 @@ func TestGlobFrontMatter_DifferentMetadataTypes(t *testing.T) {
 			Title string `yaml:"title"`
 		}
 
-		results, err := fmx.GlobFrontMatter[simpleMetadata]("blog/post1.md")
+		results, err := mdfm.GlobFrontMatter[simpleMetadata]("blog/post1.md")
 		require.NoError(t, err)
 		require.Len(t, results, 1)
 

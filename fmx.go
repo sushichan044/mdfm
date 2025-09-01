@@ -1,4 +1,4 @@
-// Package fmx provides functionality for finding Markdown files using glob patterns
+// Package mdfm provides functionality for finding Markdown files using glob patterns
 // and extracting their frontmatter metadata while respecting Git ignore rules.
 //
 // The main function GlobFrontMatter allows you to search for Markdown files and
@@ -12,7 +12,7 @@
 //		Published bool     `yaml:"published"`
 //	}
 //
-//	results, err := fmx.GlobFrontMatter[BlogPost]("content/**/*.md")
+//	results, err := mdfm.GlobFrontMatter[BlogPost]("content/**/*.md")
 //	if err != nil {
 //		log.Fatal(err)
 //	}
@@ -27,7 +27,7 @@
 //		fmt.Printf("Title: %s\n", post.FrontMatter.Title)
 //		fmt.Printf("Content: %s\n", post.Body)
 //	}
-package fmx
+package mdfm
 
 import (
 	"os"
@@ -35,9 +35,9 @@ import (
 	"github.com/basemachina/lo"
 	"github.com/bmatcuk/doublestar/v4"
 
-	"github.com/sushichan044/fmx/internal/concurrent"
-	"github.com/sushichan044/fmx/internal/gitignore"
-	"github.com/sushichan044/fmx/internal/markdown"
+	"github.com/sushichan044/mdfm/internal/concurrent"
+	"github.com/sushichan044/mdfm/internal/gitignore"
+	"github.com/sushichan044/mdfm/internal/markdown"
 )
 
 // MarkdownDocument represents a Markdown file with its parsed frontmatter and content.

@@ -20,8 +20,8 @@ universal_binaries:
 
 builds:
   - main: ./cmd/cli
-    id: fmx
-    binary: fmx
+    id: mdfm
+    binary: mdfm
     env:
       - CGO_ENABLED=0
     goos:
@@ -61,7 +61,7 @@ changelog:
 release:
   github:
     owner: sushichan044
-    name: fmx
+    name: mdfm
   footer: >-
 
     ---
@@ -75,11 +75,11 @@ homebrew_casks:
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     # The project name and current git tag are used in the format string.
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    homepage: https://github.com/sushichan044/fmx
+    homepage: https://github.com/sushichan044/mdfm
     description: Glob markdown files and get each frontmatters.
     hooks:
       post:
         install: |
           if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/fmx"]
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/mdfm"]
           end

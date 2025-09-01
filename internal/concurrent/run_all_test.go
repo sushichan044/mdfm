@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sushichan044/fmx/internal/concurrent"
+	"github.com/sushichan044/mdfm/internal/concurrent"
 )
 
 func TestRunAll_SuccessAndError(t *testing.T) {

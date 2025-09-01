@@ -1,10 +1,10 @@
-# fmx
+# mdfm
 
-[![CI](https://github.com/sushichan044/fmx/actions/workflows/ci.yml/badge.svg)](https://github.com/sushichan044/fmx/actions/workflows/ci.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/sushichan044/fmx.svg)](https://pkg.go.dev/github.com/sushichan044/fmx)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sushichan044/fmx)](https://goreportcard.com/report/github.com/sushichan044/fmx)
+[![CI](https://github.com/sushichan044/mdfm/actions/workflows/ci.yml/badge.svg)](https://github.com/sushichan044/mdfm/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sushichan044/mdfm.svg)](https://pkg.go.dev/github.com/sushichan044/mdfm)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sushichan044/mdfm)](https://goreportcard.com/report/github.com/sushichan044/mdfm)
 
-**fmx** is a Go library and CLI tool that finds Markdown files using glob patterns and extracts their frontmatter metadata as JSON.
+**mdfm** is a Go library and CLI tool that finds Markdown files using glob patterns and extracts their frontmatter metadata as JSON.
 
 ## Features
 
@@ -21,17 +21,17 @@
 Install the CLI tool using Go:
 
 ```bash
-go install github.com/sushichan044/fmx/cmd/cli@latest
+go install github.com/sushichan044/mdfm/cmd/cli@latest
 ```
 
-Or download pre-built binaries from the [releases page](https://github.com/sushichan044/fmx/releases).
+Or download pre-built binaries from the [releases page](https://github.com/sushichan044/mdfm/releases).
 
 ### Library Installation
 
-Add fmx to your Go project:
+Add mdfm to your Go project:
 
 ```bash
-go get github.com/sushichan044/fmx
+go get github.com/sushichan044/mdfm
 ```
 
 ## CLI Usage
@@ -41,23 +41,23 @@ go get github.com/sushichan044/fmx
 Find all Markdown files and extract their frontmatter:
 
 ```bash
-fmx "**/*.md"
+mdfm "**/*.md"
 ```
 
 ### Examples
 
 ```bash
 # Find all Markdown files in the docs directory
-fmx "docs/**/*.md"
+mdfm "docs/**/*.md"
 
 # Find all blog posts
-fmx "content/posts/*.md"
+mdfm "content/posts/*.md"
 
 # Find specific file
-fmx "README.md"
+mdfm "README.md"
 
 # Find files with specific pattern
-fmx "content/**/{blog,docs}/*.md"
+mdfm "content/**/{blog,docs}/*.md"
 ```
 
 ### Output Format
@@ -79,10 +79,10 @@ The CLI outputs JSON lines, with each line containing:
 
 ```bash
 # Show version information
-fmx --version
+mdfm --version
 
 # Show help
-fmx --help
+mdfm --help
 ```
 
 ## Library Usage
@@ -96,7 +96,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/sushichan044/fmx"
+    "github.com/sushichan044/mdfm"
 )
 
 type BlogPost struct {
@@ -107,7 +107,7 @@ type BlogPost struct {
 }
 
 func main() {
-    results, err := fmx.GlobFrontMatter[BlogPost]("content/**/*.md")
+    results, err := mdfm.GlobFrontMatter[BlogPost]("content/**/*.md")
     if err != nil {
         log.Fatal(err)
     }
@@ -135,7 +135,7 @@ You can use any type for frontmatter extraction:
 
 ```go
 // Use map for dynamic frontmatter
-results, err := fmx.GlobFrontMatter[map[string]any]("**/*.md")
+results, err := mdfm.GlobFrontMatter[map[string]any]("**/*.md")
 
 // Use a custom struct for type safety
 type Metadata struct {
@@ -144,7 +144,7 @@ type Metadata struct {
     CreatedAt   time.Time `yaml:"created_at"`
 }
 
-results, err := fmx.GlobFrontMatter[Metadata]("**/*.md")
+results, err := mdfm.GlobFrontMatter[Metadata]("**/*.md")
 ```
 
 ### Error Handling
@@ -152,7 +152,7 @@ results, err := fmx.GlobFrontMatter[Metadata]("**/*.md")
 The library uses a concurrent processing model where individual file processing errors don't stop the entire operation:
 
 ```go
-results, err := fmx.GlobFrontMatter[MyType]("**/*.md")
+results, err := mdfm.GlobFrontMatter[MyType]("**/*.md")
 if err != nil {
     // This is a fatal error (e.g., invalid glob pattern)
     log.Fatal(err)
@@ -180,13 +180,13 @@ See here for details:
 
 ## Git Integration
 
-fmx automatically respects Git ignore rules from:
+mdfm automatically respects Git ignore rules from:
 
 - **Local `.gitignore`**: Project-specific ignore patterns
 - **Global Git excludes**: User's global `~/.config/git/ignore` (or `$XDG_CONFIG_HOME/git/ignore`)
 - **Repository excludes**: Local `.git/info/exclude` file
 
-This means fmx will automatically skip files that Git would ignore, making it perfect for processing only the files that are part of your project.
+This means mdfm will automatically skip files that Git would ignore, making it perfect for processing only the files that are part of your project.
 
 ## Development
 

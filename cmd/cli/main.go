@@ -7,8 +7,8 @@ import (
 
 	"github.com/alecthomas/kong"
 
-	"github.com/sushichan044/fmx"
-	"github.com/sushichan044/fmx/version"
+	"github.com/sushichan044/mdfm"
+	"github.com/sushichan044/mdfm/version"
 )
 
 var (
@@ -30,7 +30,7 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	globResult, err := fmx.GlobFrontMatter[map[string]any](cmd.Pattern)
+	globResult, err := mdfm.GlobFrontMatter[map[string]any](cmd.Pattern)
 
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (cmd *CLI) Run() error {
 
 func main() {
 	ctx := kong.Parse(&CLI{}, kong.Vars{
-		"version": fmt.Sprintf("fmx %s (rev: %s)", version.Version, revision),
+		"version": fmt.Sprintf("mdfm %s (rev: %s)", version.Version, revision),
 	})
 	ctx.FatalIfErrorf(ctx.Run())
 }

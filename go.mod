@@ -1,4 +1,4 @@
-module github.com/sushichan044/fmx
+module github.com/sushichan044/mdfm
 
 go 1.24.0
 

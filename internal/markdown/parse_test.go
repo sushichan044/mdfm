@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sushichan044/fmx/internal/markdown"
+	"github.com/sushichan044/mdfm/internal/markdown"
 )
 
 type testMetadata struct {

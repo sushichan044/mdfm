@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-fmx is a Go CLI tool / Library that finds Markdown files using glob patterns and extracts their frontmatter metadata while respecting Git ignore rules.
+mdfm is a Go CLI tool / Library that finds Markdown files using glob patterns and extracts their frontmatter metadata while respecting Git ignore rules.
 
 ## Development Commands
 
@@ -31,7 +31,7 @@ Standard Go commands also work:
 ### Core Structure
 
 - `cmd/cli/main.go` - CLI entry point using Kong for argument parsing
-- `fmx.go` - Main library API with `GlobFrontMatter` function
+- `mdfm.go` - Main library API with `GlobFrontMatter` function
 - `internal/gitignore/` - Git ignore handling with support for global/local ignore files
   - `matcher.go` - Main gitignore matching logic
   - `path.go` - Path resolution for various gitignore files
