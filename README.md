@@ -121,7 +121,7 @@ type BlogPost struct {
 }
 
 func main() {
-    results, err := mdfm.GlobFrontMatter[BlogPost]("content/**/*.md")
+    results, err := mdfm.Glob[BlogPost]("content/**/*.md")
     if err != nil {
         log.Fatal(err)
     }
@@ -137,7 +137,7 @@ func main() {
         fmt.Printf("Title: %s\n", post.FrontMatter.Title)
         fmt.Printf("Path: %s\n", result.Metadata.Path)
         fmt.Printf("Published: %t\n", post.FrontMatter.Published)
-        fmt.Printf("Content preview: %.100s...\n", post.Body)
+        fmt.Printf("Content preview: %.100s...\n", post.BodyString())
         fmt.Println("---")
     }
 }
@@ -149,7 +149,7 @@ You can use any type for frontmatter extraction:
 
 ```go
 // Use map for dynamic frontmatter
-results, err := mdfm.GlobFrontMatter[map[string]any]("**/*.md")
+results, err := mdfm.Glob[map[string]any]("**/*.md")
 
 // Use a custom struct for type safety
 type Metadata struct {
@@ -158,7 +158,42 @@ type Metadata struct {
     CreatedAt   time.Time `yaml:"created_at"`
 }
 
-results, err := mdfm.GlobFrontMatter[Metadata]("**/*.md")
+results, err := mdfm.Glob[Metadata]("**/*.md")
+```
+
+### Streaming Processing
+
+For better performance with large file sets, use `GlobStream` for streaming results:
+
+```go
+resultChan, err := mdfm.GlobStream[BlogPost]("content/**/*.md")
+if err != nil {
+    log.Fatal(err)
+}
+
+for result := range resultChan {
+    if result.Result.Err != nil {
+        fmt.Printf("Error processing %s: %v\n",
+            result.Metadata.Path, result.Result.Err)
+        continue
+    }
+
+    post := result.Result.Value
+    if post.FrontMatter.Published {
+        fmt.Printf("Published: %s by %s\n",
+            post.FrontMatter.Title, post.FrontMatter.Author)
+    }
+}
+```
+
+### Concurrency Control
+
+The library uses a fixed concurrency limit of 10 concurrent file processors by default. This is handled internally and cannot be configured via the public API:
+
+```go
+// Both Glob and GlobStream use internal concurrency limit of 10
+results, err := mdfm.Glob[BlogPost]("**/*.md")
+resultChan, err := mdfm.GlobStream[BlogPost]("**/*.md")
 ```
 
 ### Error Handling
@@ -166,7 +201,7 @@ results, err := mdfm.GlobFrontMatter[Metadata]("**/*.md")
 The library uses a concurrent processing model where individual file processing errors don't stop the entire operation:
 
 ```go
-results, err := mdfm.GlobFrontMatter[MyType]("**/*.md")
+results, err := mdfm.Glob[MyType]("**/*.md")
 if err != nil {
     // This is a fatal error (e.g., invalid glob pattern)
     log.Fatal(err)
@@ -182,7 +217,7 @@ for _, result := range results {
 
     // Process successful result
     doc := result.Result.Value
-    // ... use doc.FrontMatter and doc.Body
+    // ... use doc.FrontMatter and doc.BodyString()
 }
 ```
 
