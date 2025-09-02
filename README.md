@@ -18,6 +18,10 @@
 
 ## Installation
 
+### GitHub Actions
+
+You can use [mdfm-action](https://github.com/sushichan044/mdfm-action) to integrate mdfm into your GitHub workflows.
+
 ### CLI Installation
 
 Install the CLI tool using Go:
