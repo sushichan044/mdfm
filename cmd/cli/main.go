@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/alecthomas/kong"
@@ -31,11 +33,14 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	tasks, err := mdfm.Glob[map[string]any](cmd.Pattern)
-
-	if err != nil {
-		return err
+	tasks, globErr := mdfm.Glob[map[string]any](cmd.Pattern)
+	if globErr != nil {
+		return globErr
 	}
+
+	printer := passthroughPrinter()
+	wtr := bufio.NewWriter(os.Stdout)
+	defer wtr.Flush()
 
 	for _, task := range tasks {
 		if task.Result.Err != nil {
@@ -44,22 +49,34 @@ func (cmd *CLI) Run() error {
 		}
 
 		payload := jsonPayload{
-			Body:        string(task.Result.Value.Body),
+			Body:        task.Result.Value.BodyString(),
 			Path:        task.Metadata.Path,
 			FrontMatter: task.Result.Value.FrontMatter,
 		}
 
-		jsonData, marshalErr := json.MarshalIndent(payload, "", "  ")
-		if marshalErr != nil {
-			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", task.Metadata.Path, marshalErr)
+		if fmtErr := printer(wtr, payload); fmtErr != nil {
+			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %s", task.Metadata.Path, fmtErr)
 			continue
 		}
 
-		//nolint:forbidigo // This is fine
-		fmt.Printf("%s\n", jsonData)
+		if err := wtr.Flush(); err != nil {
+			fmt.Fprintf(os.Stderr, "error flushing output for %s: %s", task.Metadata.Path, err)
+		}
 	}
 
 	return nil
+}
+
+// jsonPrinter is a simple function type for formatting the payload to JSON.
+type jsonPrinter func(output io.Writer, payload jsonPayload) error
+
+func passthroughPrinter() jsonPrinter {
+	return func(output io.Writer, payload jsonPayload) error {
+		encoder := json.NewEncoder(output)
+		encoder.SetIndent("", "  ")
+
+		return encoder.Encode(payload)
+	}
 }
 
 func main() {
