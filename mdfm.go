@@ -31,6 +31,7 @@ package mdfm
 
 import (
 	"os"
+	"strings"
 
 	"github.com/basemachina/lo"
 	"github.com/bmatcuk/doublestar/v4"
@@ -163,14 +164,15 @@ func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
 	}
 	defer f.Close()
 
-	md, err := markdown.ParseMarkdownWithMetadata[T](f)
-	if err != nil {
-		return nil, err
+	var output strings.Builder
+	var meta T
+	if mdErr := markdown.Parse(f, &output, &meta); mdErr != nil {
+		return nil, mdErr
 	}
 
 	return &MarkdownDocument[T]{
-		FrontMatter: md.FrontMatter,
-		Body:        md.Content,
+		FrontMatter: meta,
+		Body:        output.String(),
 	}, nil
 }
 

@@ -6,30 +6,20 @@ import (
 	"github.com/adrg/frontmatter"
 )
 
-type (
-	ParsedMarkdown[T any] struct {
-		// Metadata parsed from the front matter
-		FrontMatter T
-		// Content is the rest of the markdown content after the front matter
-		Content string
-	}
-)
-
-// ParseMarkdownWithMetadata parses the front matter from the given markdown content
+// Parse parses the front matter from the given markdown content
 // and returns the parsed metadata and the rest of the content.
 //
 // The front matter is expected to be in YAML format and is unmarshalled into the
 // provided type T. The rest of the content is returned as a string.
 //
 // If the front matter is not present, FrontMatter will be empty.
-func ParseMarkdownWithMetadata[T any](input io.Reader) (ParsedMarkdown[T], error) {
-	fm := new(T)
+func Parse[T any](input io.Reader, output io.Writer, frontMatter *T) error {
 	// Parse the front matter and require it to be present
-	rest, err := frontmatter.Parse(input, fm)
+	rest, err := frontmatter.Parse(input, frontMatter)
 	if err != nil {
-		return ParsedMarkdown[T]{}, err
+		return err
 	}
 
-	// Convert the rest of the content to a string
-	return ParsedMarkdown[T]{FrontMatter: *fm, Content: string(rest)}, nil
+	_, err = output.Write(rest)
+	return err
 }
