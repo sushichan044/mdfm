@@ -38,9 +38,14 @@ func (cmd *CLI) Run() error {
 		return fmt.Errorf("error during glob %s: %w", cmd.Pattern, globErr)
 	}
 
-	printer := passthroughPrinter()
 	wtr := bufio.NewWriter(os.Stdout)
-	defer wtr.Flush()
+	printer := newPassthroughPrinter(wtr)
+
+	defer func() {
+		if err := wtr.Flush(); err != nil {
+			fmt.Fprintf(os.Stderr, "error flushing output on exit: %s", err)
+		}
+	}()
 
 	for _, task := range tasks {
 		if task.Result.Err != nil {
@@ -54,7 +59,7 @@ func (cmd *CLI) Run() error {
 			FrontMatter: task.Result.Value.FrontMatter,
 		}
 
-		if fmtErr := printer(wtr, payload); fmtErr != nil {
+		if fmtErr := printer(payload); fmtErr != nil {
 			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %s", task.Metadata.Path, fmtErr)
 			continue
 		}
@@ -67,15 +72,15 @@ func (cmd *CLI) Run() error {
 	return nil
 }
 
-// jsonPrinter is a simple function type for formatting the payload to JSON.
-type jsonPrinter func(output io.Writer, payload jsonPayload) error
+// jsonPrinter writes a payload as JSON using a captured encoder.
+type jsonPrinter func(payload jsonPayload) error
 
-func passthroughPrinter() jsonPrinter {
-	return func(output io.Writer, payload jsonPayload) error {
-		encoder := json.NewEncoder(output)
-		encoder.SetIndent("", "  ")
+func newPassthroughPrinter(output io.Writer) jsonPrinter {
+	enc := json.NewEncoder(output)
+	enc.SetIndent("", "  ")
 
-		return encoder.Encode(payload)
+	return func(payload jsonPayload) error {
+		return enc.Encode(payload)
 	}
 }
 
