@@ -35,7 +35,7 @@ type (
 func (cmd *CLI) Run() error {
 	tasks, globErr := mdfm.Glob[map[string]any](cmd.Pattern)
 	if globErr != nil {
-		return globErr
+		return fmt.Errorf("error during glob %s: %w", cmd.Pattern, globErr)
 	}
 
 	printer := passthroughPrinter()
