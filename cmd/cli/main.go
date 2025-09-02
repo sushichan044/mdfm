@@ -51,8 +51,10 @@ func (cmd *CLI) Run() error {
 		}
 	}()
 
+	var hasErrors bool
 	for _, task := range tasks {
 		if task.Result.Err != nil {
+			hasErrors = true
 			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", task.Metadata.Path, task.Result.Err)
 			continue
 		}
@@ -64,6 +66,7 @@ func (cmd *CLI) Run() error {
 		}
 
 		if fmtErr := printer(payload); fmtErr != nil {
+			hasErrors = true
 			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %v\n", task.Metadata.Path, fmtErr)
 			continue
 		}
@@ -72,8 +75,13 @@ func (cmd *CLI) Run() error {
 			if errors.Is(err, syscall.EPIPE) {
 				return nil
 			}
+			hasErrors = true
 			fmt.Fprintf(os.Stderr, "error flushing output for %s: %v\n", task.Metadata.Path, err)
 		}
+	}
+
+	if hasErrors {
+		return errors.New("errors occurred during processing markdown files")
 	}
 
 	return nil
