@@ -45,7 +45,9 @@ func (cmd *CLI) Run() error {
 
 	defer func() {
 		if err := wtr.Flush(); err != nil {
-			fmt.Fprintf(os.Stderr, "error flushing output on exit: %s", err)
+			if !errors.Is(err, syscall.EPIPE) {
+				fmt.Fprintf(os.Stderr, "error flushing output on exit: %s", err)
+			}
 		}
 	}()
 
