@@ -16,7 +16,7 @@ type testMetadata struct {
 	Version     int    `yaml:"version"`
 }
 
-func TestParseMarkdownWithMetadata(t *testing.T) {
+func TestParse(t *testing.T) {
 	tests := []struct {
 		name            string
 		input           string
@@ -77,16 +77,19 @@ Content`,
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(tt.input))
+			var output strings.Builder
+			defer output.Reset()
 
+			var meta testMetadata
+			err := markdown.Parse[testMetadata](strings.NewReader(tt.input), &output, &meta)
 			if tt.expectError {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
 
-			assert.Equal(t, tt.expectedMeta, result.FrontMatter)
-			assert.Equal(t, tt.expectedContent, result.Content)
+			assert.Equal(t, tt.expectedMeta, meta)
+			assert.Equal(t, tt.expectedContent, output.String())
 		})
 	}
 
@@ -96,16 +99,18 @@ title: Original Title
 ---
 Content`
 
-		result, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(content))
+		var output strings.Builder
+		var meta testMetadata
+		err := markdown.Parse[testMetadata](strings.NewReader(content), &output, &meta)
 		require.NoError(t, err)
-		assert.Equal(t, "Original Title", result.FrontMatter.Title)
+		assert.Equal(t, "Original Title", meta.Title)
 
 		// Modify the result metadata
-		result.FrontMatter.Title = "Modified Title"
+		meta.Title = "Modified Title"
 
 		// Parse again and confirm the original values are preserved
-		secondResult, err := markdown.ParseMarkdownWithMetadata[testMetadata](strings.NewReader(content))
+		err = markdown.Parse[testMetadata](strings.NewReader(content), &output, &meta)
 		require.NoError(t, err)
-		assert.Equal(t, "Original Title", secondResult.FrontMatter.Title)
+		assert.Equal(t, "Original Title", meta.Title)
 	})
 }
