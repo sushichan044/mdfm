@@ -49,7 +49,7 @@ func (cmd *CLI) Run() error {
 
 	for _, task := range tasks {
 		if task.Result.Err != nil {
-			fmt.Fprintf(os.Stderr, "error processing %s: %s", task.Metadata.Path, task.Result.Err)
+			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", task.Metadata.Path, task.Result.Err)
 			continue
 		}
 
@@ -60,12 +60,12 @@ func (cmd *CLI) Run() error {
 		}
 
 		if fmtErr := printer(payload); fmtErr != nil {
-			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %s", task.Metadata.Path, fmtErr)
+			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %v\n", task.Metadata.Path, fmtErr)
 			continue
 		}
 
 		if err := wtr.Flush(); err != nil {
-			fmt.Fprintf(os.Stderr, "error flushing output for %s: %s", task.Metadata.Path, err)
+			fmt.Fprintf(os.Stderr, "error flushing output for %s: %v\n", task.Metadata.Path, err)
 		}
 	}
 
