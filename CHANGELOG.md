@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.0](https://github.com/sushichan044/mdfm/compare/v0.1.2...v1.0.0) - 2025-09-02
+- refactor: use `io.Reader` as args of `ParseMarkdownWithMetadata()` by @sushichan044 in https://github.com/sushichan044/mdfm/pull/12
+- chore: remove unused code by @sushichan044 in https://github.com/sushichan044/mdfm/pull/13
+- refactor: simplify internal api by @sushichan044 in https://github.com/sushichan044/mdfm/pull/14
+- feat!: stabilizing public api by @sushichan044 in https://github.com/sushichan044/mdfm/pull/15
+- refactor: use bufio Writer by @sushichan044 in https://github.com/sushichan044/mdfm/pull/16
+- feat: add streamable api by @sushichan044 in https://github.com/sushichan044/mdfm/pull/17
+
 ## [v0.1.2](https://github.com/sushichan044/mdfm/compare/v0.1.1...v0.1.2) - 2025-09-01
 - fix: do not create release from tagpr by @sushichan044 in https://github.com/sushichan044/mdfm/pull/9
 
