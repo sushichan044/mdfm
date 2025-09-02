@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"syscall"
 
 	"github.com/alecthomas/kong"
 
@@ -65,6 +67,9 @@ func (cmd *CLI) Run() error {
 		}
 
 		if err := wtr.Flush(); err != nil {
+			if errors.Is(err, syscall.EPIPE) {
+				return nil
+			}
 			fmt.Fprintf(os.Stderr, "error flushing output for %s: %v\n", task.Metadata.Path, err)
 		}
 	}
