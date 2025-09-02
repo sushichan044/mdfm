@@ -35,7 +35,7 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	tasks, globErr := mdfm.Glob[map[string]any](cmd.Pattern)
+	resultChan, globErr := mdfm.GlobStream[map[string]any](cmd.Pattern)
 	if globErr != nil {
 		return fmt.Errorf("error during glob %s: %w", cmd.Pattern, globErr)
 	}
@@ -52,7 +52,7 @@ func (cmd *CLI) Run() error {
 	}()
 
 	var hasErrors bool
-	for _, task := range tasks {
+	for task := range resultChan {
 		if task.Result.Err != nil {
 			hasErrors = true
 			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", task.Metadata.Path, task.Result.Err)

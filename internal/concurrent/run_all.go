@@ -91,3 +91,77 @@ func RunAll[T, M any](tasks []Task[T, M], options ...ConcurrencyOptions) []TaskE
 	wg.Wait()
 	return results
 }
+
+// RunAllStream runs all given tasks with metadata concurrently and streams results as they complete.
+// Unlike RunAll, this function returns a channel that receives results as soon as they are available,
+// without waiting for all tasks to finish first. The channel is closed when all tasks complete.
+//
+// It does not fail fast: even if some tasks return an error or panic, the others keep running.
+// Results are streamed in completion order, not input order.
+//
+// Each task includes metadata and a function returning (T, error). Panics inside tasks are recovered and
+// exposed as errors in the corresponding Result with a message prefixed by "panic:".
+//
+// The returned channel should be consumed until it's closed to avoid goroutine leaks.
+func RunAllStream[T, M any](tasks []Task[T, M], options ...ConcurrencyOptions) <-chan TaskExecution[T, M] {
+	opts := setOpts(options...)
+
+	ctx := context.Background()
+	sem := semaphore.NewWeighted(opts.maxConcurrency)
+
+	// Buffered channel sized to hold all results prevents goroutines from blocking
+	resultChan := make(chan TaskExecution[T, M], len(tasks))
+
+	var wg sync.WaitGroup
+
+	for _, task := range tasks {
+		wg.Add(1)
+
+		go func(task Task[T, M]) {
+			defer wg.Done()
+			var zero T
+
+			if err := sem.Acquire(ctx, 1); err != nil {
+				resultChan <- TaskExecution[T, M]{
+					Metadata: task.Metadata,
+					Result: taskResult[T]{
+						Value: zero,
+						Err:   fmt.Errorf("semaphore acquire failed: %w", err),
+					},
+				}
+				return
+			}
+			defer sem.Release(1)
+
+			// Recover panic and convert into error.
+			defer func() {
+				if rec := recover(); rec != nil {
+					resultChan <- TaskExecution[T, M]{
+						Metadata: task.Metadata,
+						Result: taskResult[T]{
+							Value: zero,
+							Err:   fmt.Errorf("panic: %v", rec),
+						},
+					}
+				}
+			}()
+
+			v, err := task.Run()
+			resultChan <- TaskExecution[T, M]{
+				Metadata: task.Metadata,
+				Result: taskResult[T]{
+					Value: v,
+					Err:   err,
+				},
+			}
+		}(task)
+	}
+
+	// Close the channel when all tasks are done
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	return resultChan
+}
