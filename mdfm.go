@@ -25,13 +25,13 @@
 //
 //		post := task.Result.Value
 //		fmt.Printf("Title: %s\n", post.FrontMatter.Title)
-//		fmt.Printf("Content: %s\n", post.Body)
+//		fmt.Printf("Content: %s\n", post.BodyString())
 //	}
 package mdfm
 
 import (
+	"bytes"
 	"os"
-	"strings"
 
 	"github.com/basemachina/lo"
 	"github.com/bmatcuk/doublestar/v4"
@@ -62,7 +62,7 @@ type (
 
 		// Body contains the raw markdown content without the frontmatter.
 		// This includes all content after the frontmatter delimiter.
-		Body string
+		Body []byte
 	}
 
 	// MarkdownDocumentMetadata contains metadata about the processing of a Markdown file.
@@ -75,11 +75,16 @@ type (
 	}
 )
 
+// BodyString returns the markdown body as a string.
+func (md *MarkdownDocument[T]) BodyString() string {
+	return string(md.Body)
+}
+
 const (
 	readConcurrency = 10
 )
 
-// GlobFrontMatter finds Markdown files matching the given glob pattern and
+// Glob finds Markdown files matching the given glob pattern and
 // extracts their frontmatter metadata concurrently. It respects Git ignore rules
 // and returns results for successful and failed file processing.
 //
@@ -111,7 +116,7 @@ const (
 //		Published bool      `yaml:"published"`
 //	}
 //
-//	tasks, err := GlobFrontMatter[Article]("content/**/*.md")
+//	tasks, err := Glob[Article]("content/**/*.md")
 //	if err != nil {
 //		log.Fatalf("Failed to glob files: %v", err)
 //	}
@@ -132,9 +137,9 @@ const (
 //
 // For dynamic frontmatter (when structure is unknown):
 //
-//	tasks, err := GlobFrontMatter[map[string]any]("**/*.md")
+//	tasks, err := Glob[map[string]any]("**/*.md")
 //	// ... handle results with type assertions
-func GlobFrontMatter[T any](
+func Glob[T any](
 	glob string,
 ) ([]concurrent.TaskExecution[*MarkdownDocument[T], MarkdownDocumentMetadata], error) {
 	matched, err := runGlob(glob)
@@ -164,7 +169,7 @@ func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
 	}
 	defer f.Close()
 
-	var output strings.Builder
+	var output bytes.Buffer
 	var meta T
 	if mdErr := markdown.Parse(f, &output, &meta); mdErr != nil {
 		return nil, mdErr
@@ -172,7 +177,7 @@ func processMarkdownFile[T any](path string) (*MarkdownDocument[T], error) {
 
 	return &MarkdownDocument[T]{
 		FrontMatter: meta,
-		Body:        output.String(),
+		Body:        output.Bytes(),
 	}, nil
 }
 

@@ -31,7 +31,7 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	tasks, err := mdfm.GlobFrontMatter[map[string]any](cmd.Pattern)
+	tasks, err := mdfm.Glob[map[string]any](cmd.Pattern)
 
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func (cmd *CLI) Run() error {
 		}
 
 		payload := jsonPayload{
-			Body:        task.Result.Value.Body,
+			Body:        string(task.Result.Value.Body),
 			Path:        task.Metadata.Path,
 			FrontMatter: task.Result.Value.FrontMatter,
 		}
