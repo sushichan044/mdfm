@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
+	"syscall"
 
 	"github.com/alecthomas/kong"
 
@@ -31,35 +35,58 @@ type (
 )
 
 func (cmd *CLI) Run() error {
-	tasks, err := mdfm.Glob[map[string]any](cmd.Pattern)
-
-	if err != nil {
-		return err
+	tasks, globErr := mdfm.Glob[map[string]any](cmd.Pattern)
+	if globErr != nil {
+		return fmt.Errorf("error during glob %s: %w", cmd.Pattern, globErr)
 	}
+
+	wtr := bufio.NewWriter(os.Stdout)
+	printer := newPassthroughPrinter(wtr)
+
+	defer func() {
+		if err := wtr.Flush(); err != nil {
+			fmt.Fprintf(os.Stderr, "error flushing output on exit: %s", err)
+		}
+	}()
 
 	for _, task := range tasks {
 		if task.Result.Err != nil {
-			fmt.Fprintf(os.Stderr, "error processing %s: %s", task.Metadata.Path, task.Result.Err)
+			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", task.Metadata.Path, task.Result.Err)
 			continue
 		}
 
 		payload := jsonPayload{
-			Body:        string(task.Result.Value.Body),
+			Body:        task.Result.Value.BodyString(),
 			Path:        task.Metadata.Path,
 			FrontMatter: task.Result.Value.FrontMatter,
 		}
 
-		jsonData, marshalErr := json.MarshalIndent(payload, "", "  ")
-		if marshalErr != nil {
-			fmt.Fprintf(os.Stderr, "error marshaling JSON for %s: %s", task.Metadata.Path, marshalErr)
+		if fmtErr := printer(payload); fmtErr != nil {
+			fmt.Fprintf(os.Stderr, "error formatting JSON for %s: %v\n", task.Metadata.Path, fmtErr)
 			continue
 		}
 
-		//nolint:forbidigo // This is fine
-		fmt.Printf("%s\n", jsonData)
+		if err := wtr.Flush(); err != nil {
+			if errors.Is(err, syscall.EPIPE) {
+				return nil
+			}
+			fmt.Fprintf(os.Stderr, "error flushing output for %s: %v\n", task.Metadata.Path, err)
+		}
 	}
 
 	return nil
+}
+
+// jsonPrinter writes a payload as JSON using a captured encoder.
+type jsonPrinter func(payload jsonPayload) error
+
+func newPassthroughPrinter(output io.Writer) jsonPrinter {
+	enc := json.NewEncoder(output)
+	enc.SetIndent("", "  ")
+
+	return func(payload jsonPayload) error {
+		return enc.Encode(payload)
+	}
 }
 
 func main() {
