@@ -109,6 +109,7 @@ func RunAllStream[T, M any](tasks []Task[T, M], options ...ConcurrencyOptions) <
 	ctx := context.Background()
 	sem := semaphore.NewWeighted(opts.maxConcurrency)
 
+	// Buffered channel sized to hold all results prevents goroutines from blocking
 	resultChan := make(chan TaskExecution[T, M], len(tasks))
 
 	var wg sync.WaitGroup
