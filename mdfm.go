@@ -25,7 +25,7 @@
 //
 //		post := task.Result.Value
 //		fmt.Printf("Title: %s\n", post.FrontMatter.Title)
-//		fmt.Printf("Content: %s\n", string(post.Body))
+//		fmt.Printf("Content: %s\n", post.BodyString())
 //	}
 package mdfm
 
@@ -74,6 +74,11 @@ type (
 		Path string
 	}
 )
+
+// BodyString returns the markdown body as a string.
+func (md *MarkdownDocument[T]) BodyString() string {
+	return string(md.Body)
+}
 
 const (
 	readConcurrency = 10
