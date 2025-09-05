@@ -1,6 +1,3 @@
-[tools]
-golangci-lint = "latest"
-
 [env]
 GO111MODULE = "on"
 GOFLAGS = "-mod=readonly"
