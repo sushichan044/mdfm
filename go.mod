@@ -2,6 +2,8 @@ module github.com/sushichan044/mdfm
 
 go 1.24.0
 
+toolchain go1.25.1
+
 require (
 	github.com/Songmu/gitconfig v0.2.1
 	github.com/adrg/frontmatter v0.2.0
