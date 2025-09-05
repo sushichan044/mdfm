@@ -59,6 +59,7 @@ changelog:
       - "^tagpr:"
 
 release:
+  use_existing_draft: true
   github:
     owner: sushichan044
     name: mdfm
