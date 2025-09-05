@@ -15,7 +15,7 @@ runs:
 
     - name: Install gotestsum
       shell: bash
-      run: go install gotest.tools/gotestsum@5768fec807c3a620b209c79845e80fb4befa5857 # v1.12.2
+      run: go install gotest.tools/gotestsum@latest
 
     - name: go mod download
       shell: bash
