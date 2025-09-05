@@ -1,5 +1,8 @@
 # Changelog
 
+## [v1.0.2](https://github.com/sushichan044/mdfm/compare/v1.0.1...v1.0.2) - 2025-09-05
+- ci: use toolchain directive by @sushichan044 in https://github.com/sushichan044/mdfm/pull/20
+
 ## [v1.0.1](https://github.com/sushichan044/mdfm/compare/v1.0.0...v1.0.1) - 2025-09-05
 - ci: use existing draft from GpReleaser by @sushichan044 in https://github.com/sushichan044/mdfm/pull/19
 
