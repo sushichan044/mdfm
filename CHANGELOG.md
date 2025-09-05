@@ -1,5 +1,8 @@
 # Changelog
 
+## [v1.0.1](https://github.com/sushichan044/mdfm/compare/v1.0.0...v1.0.1) - 2025-09-05
+- ci: use existing draft from GpReleaser by @sushichan044 in https://github.com/sushichan044/mdfm/pull/19
+
 ## [v1.0.0](https://github.com/sushichan044/mdfm/compare/v0.1.2...v1.0.0) - 2025-09-02
 - refactor: use `io.Reader` as args of `ParseMarkdownWithMetadata()` by @sushichan044 in https://github.com/sushichan044/mdfm/pull/12
 - chore: remove unused code by @sushichan044 in https://github.com/sushichan044/mdfm/pull/13
