@@ -1,7 +1,3 @@
-[env]
-GO111MODULE = "on"
-GOFLAGS = "-mod=readonly"
-
 [tasks.dev]
 description = "Run the application in development mode"
 run = "go run ./cmd/cli"
