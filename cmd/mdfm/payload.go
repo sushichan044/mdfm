@@ -72,9 +72,9 @@ func newJQPrinter(enc *json.Encoder, jqCode *gojq.Code) (payloadPrinter, error) 
 			if !ok {
 				break
 			}
-			if err, errOk := v.(error); errOk {
-				halt := &gojq.HaltError{}
-				if errors.As(err, &halt) {
+			if err, isErr := v.(error); isErr {
+				var e *gojq.HaltError
+				if errors.As(err, &e) && e.Value() == nil {
 					break
 				}
 				return err
