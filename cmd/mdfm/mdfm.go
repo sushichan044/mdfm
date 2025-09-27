@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"syscall"
 
@@ -25,12 +23,8 @@ type (
 		Pattern string `arg:"" name:"pattern" help:"Glob pattern to match (eg. '**/*.md')"`
 
 		Version kong.VersionFlag `short:"v"`
-	}
 
-	jsonPayload struct {
-		Body        string `json:"body"`
-		Path        string `json:"path"`
-		FrontMatter any    `json:"frontMatter"`
+		JQ string `name:"jq" help:"jq filter to apply to each JSON object."`
 	}
 )
 
@@ -41,8 +35,6 @@ func (cmd *CLI) Run() error {
 	}
 
 	wtr := bufio.NewWriter(os.Stdout)
-	printer := newPassthroughPrinter(wtr)
-
 	defer func() {
 		if err := wtr.Flush(); err != nil {
 			if !errors.Is(err, syscall.EPIPE) {
@@ -50,6 +42,11 @@ func (cmd *CLI) Run() error {
 			}
 		}
 	}()
+
+	printer, printerErr := NewAppropriatePrinter(wtr, cmd.JQ)
+	if printerErr != nil {
+		return printerErr
+	}
 
 	var hasErrors bool
 	for task := range resultChan {
@@ -85,18 +82,6 @@ func (cmd *CLI) Run() error {
 	}
 
 	return nil
-}
-
-// jsonPrinter writes a payload as JSON using a captured encoder.
-type jsonPrinter func(payload jsonPayload) error
-
-func newPassthroughPrinter(output io.Writer) jsonPrinter {
-	enc := json.NewEncoder(output)
-	enc.SetIndent("", "  ")
-
-	return func(payload jsonPayload) error {
-		return enc.Encode(payload)
-	}
 }
 
 func main() {
