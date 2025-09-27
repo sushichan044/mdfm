@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.0.0](https://github.com/sushichan044/mdfm/compare/v1.0.1...v2.0.0) - 2025-09-27
+- ci: use toolchain directive by @sushichan044 in https://github.com/sushichan044/mdfm/pull/20
+- build(deps): bump golang.org/x/sync from 0.16.0 to 0.17.0 by @dependabot[bot] in https://github.com/sushichan044/mdfm/pull/23
+- build(deps): bump Songmu/tagpr from 1.7.0 to 1.8.0 by @dependabot[bot] in https://github.com/sushichan044/mdfm/pull/22
+- fix!: rename package to cmd/mdfm by @sushichan044 in https://github.com/sushichan044/mdfm/pull/25
+- build(deps): bump Songmu/tagpr from 1.8.0 to 1.9.0 by @dependabot[bot] in https://github.com/sushichan044/mdfm/pull/24
+- feat: filter output with jq via --jq flag by @sushichan044 in https://github.com/sushichan044/mdfm/pull/26
+
 ## [v1.0.1](https://github.com/sushichan044/mdfm/compare/v1.0.0...v1.0.1) - 2025-09-05
 - ci: use existing draft from GpReleaser by @sushichan044 in https://github.com/sushichan044/mdfm/pull/19
 
