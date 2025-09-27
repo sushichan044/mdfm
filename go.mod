@@ -10,6 +10,7 @@ require (
 	github.com/alecthomas/kong v1.12.1
 	github.com/basemachina/lo v0.0.0-20250618012814-7ae329aee0ca
 	github.com/bmatcuk/doublestar/v4 v4.9.1
+	github.com/itchyny/gojq v0.12.15
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/sync v0.17.0
@@ -21,6 +22,7 @@ require (
 	github.com/cli/safeexec v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/itchyny/timefmt-go v0.1.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect

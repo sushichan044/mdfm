@@ -6,7 +6,7 @@
 
 **mdfm** is a Go library and CLI tool that finds Markdown files using glob patterns and extracts their frontmatter metadata as JSON.
 
-![command `go run github.com/sushichan044/mdfm/cmd/mdfm@latest ".claude/commands/**/*.md" | jq 'pick(.path,.frontMatter)'` results: `{"path":".claude/commands/dump.md","frontMatter":{"allowed-tools":"Bash(memo:*)","description":"Dump the current Claude Code session to a markdown file."}}`](/docs/images/example.png)
+![command `go run github.com/sushichan044/mdfm/cmd/mdfm@latest ".claude/commands/**/*.md" --jq 'pick(.path, .frontMatter)'` results: `{"path":".claude/commands/dump.md","frontMatter":{"allowed-tools":"Bash(memo:*)","description":"Dump the current Claude Code session to a markdown file."}}`](/docs/images/example.png)
 
 ## Features
 
@@ -70,6 +70,15 @@ mdfm "README.md"
 
 # Find files with specific pattern
 mdfm "content/**/{blog,docs}/*.md"
+
+# Extract only titles using jq filter
+mdfm "content/posts/*.md" --jq '.frontMatter.title'
+
+# Extract multiple fields using jq
+mdfm "**/*.md" --jq 'pick(.path, .frontMatter.title, .frontMatter.tags)'
+
+# Filter published posts
+mdfm "content/**/*.md" --jq 'select(.frontMatter.published == true)'
 ```
 
 ### Output Format
@@ -79,7 +88,7 @@ The CLI outputs JSON lines, with each line containing:
 > [!WARNING]
 > `body` contains the main content of the Markdown file, excluding the frontmatter.
 >
-> Since this typically produces lengthy text, it's strongly recommended to use [jq](https://github.com/jqlang/jq) in conjunction to process only the required data.
+> Since this typically produces lengthy text, it's strongly recommended to use the built-in `--jq` filter option or external [jq](https://github.com/jqlang/jq) to process only the required data.
 
 ```json
 {
@@ -101,6 +110,9 @@ mdfm --version
 
 # Show help
 mdfm --help
+
+# Apply jq filter to each JSON object
+mdfm "**/*.md" --jq '.frontMatter.title'
 ```
 
 ## Library Usage
@@ -277,7 +289,7 @@ mise run lint
 The project uses `mise` for task management:
 
 ```bash
-mise run dev "**/*.md" --json  # Run CLI locally
+mise run dev "**/*.md" # Run CLI locally
 mise run test                  # Run tests
 mise run test-coverage         # Run tests with coverage
 mise run lint                  # Run linter
