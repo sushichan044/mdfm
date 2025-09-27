@@ -6,7 +6,7 @@
 
 **mdfm** is a Go library and CLI tool that finds Markdown files using glob patterns and extracts their frontmatter metadata as JSON.
 
-![command `go run github.com/sushichan044/mdfm/cmd/cli@latest ".claude/commands/**/*.md" | jq 'pick(.path,.frontMatter)` results: `{"path":".claude/commands/dump.md","frontMatter":{"allowed-tools":"Bash(memo:*)","description":"Dump the current Claude Code session to a markdown file."}}`](/docs/images/example.png)
+![command `go run github.com/sushichan044/mdfm/cmd/mdfm@latest ".claude/commands/**/*.md" | jq 'pick(.path,.frontMatter)'` results: `{"path":".claude/commands/dump.md","frontMatter":{"allowed-tools":"Bash(memo:*)","description":"Dump the current Claude Code session to a markdown file."}}`](/docs/images/example.png)
 
 ## Features
 
@@ -27,7 +27,7 @@ You can use [mdfm-action](https://github.com/sushichan044/mdfm-action) to integr
 Install the CLI tool using Go:
 
 ```bash
-go install github.com/sushichan044/mdfm/cmd/cli@latest
+go install github.com/sushichan044/mdfm/cmd/mdfm@latest
 ```
 
 Or using Homebrew (works on macOS and Linux):
@@ -252,7 +252,7 @@ This means mdfm will automatically skip files that Git would ignore, making it p
 
 ```bash
 # Build the CLI
-go build ./cmd/cli
+go build ./cmd/mdfm
 
 # Build with mise
 mise run build-snapshot

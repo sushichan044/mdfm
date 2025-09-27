@@ -19,7 +19,7 @@ universal_binaries:
   - replace: true
 
 builds:
-  - main: ./cmd/cli
+  - main: ./cmd/mdfm/mdfm.go
     id: mdfm
     binary: mdfm
     env:

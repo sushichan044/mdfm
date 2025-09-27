@@ -1,6 +1,6 @@
 [tasks.dev]
 description = "Run the application in development mode"
-run = "go run ./cmd/cli"
+run = "go run ./cmd/mdfm"
 
 [tasks.lint]
 description = "Run golangci-lint"
