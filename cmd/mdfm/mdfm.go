@@ -45,7 +45,7 @@ func (cmd *CLI) Run() error {
 
 	printer, printerErr := NewAppropriatePrinter(wtr, cmd.JQ)
 	if printerErr != nil {
-		return printerErr
+		return fmt.Errorf("failed to configure output printer: %w", printerErr)
 	}
 
 	var hasErrors bool
