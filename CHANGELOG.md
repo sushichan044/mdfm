@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.0.1](https://github.com/sushichan044/mdfm/compare/v2.0.0...v2.0.1) - 2025-10-09
+- feat: add pretty option and remove indent by default by @sushichan044 in https://github.com/sushichan044/mdfm/pull/28
+- build(deps): bump github.com/itchyny/gojq from 0.12.15 to 0.12.17 by @dependabot[bot] in https://github.com/sushichan044/mdfm/pull/27
+
 ## [v2.0.0](https://github.com/sushichan044/mdfm/compare/v1.0.1...v2.0.0) - 2025-09-27
 - ci: use toolchain directive by @sushichan044 in https://github.com/sushichan044/mdfm/pull/20
 - build(deps): bump golang.org/x/sync from 0.16.0 to 0.17.0 by @dependabot[bot] in https://github.com/sushichan044/mdfm/pull/23
