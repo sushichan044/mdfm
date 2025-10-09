@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -25,6 +26,8 @@ type (
 		Version kong.VersionFlag `short:"v"`
 
 		JQ string `name:"jq" help:"jq filter to apply to each JSON object."`
+
+		Pretty bool `name:"pretty" help:"Pretty-print JSON output."`
 	}
 )
 
@@ -43,7 +46,11 @@ func (cmd *CLI) Run() error {
 		}
 	}()
 
-	printer, printerErr := NewAppropriatePrinter(wtr, cmd.JQ)
+	enc := json.NewEncoder(wtr)
+	if cmd.Pretty {
+		enc.SetIndent("", "  ")
+	}
+	printer, printerErr := NewAppropriatePrinter(enc, cmd.JQ)
 	if printerErr != nil {
 		return fmt.Errorf("failed to configure output printer: %w", printerErr)
 	}
