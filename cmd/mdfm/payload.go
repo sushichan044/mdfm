@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"io"
 
 	"github.com/itchyny/gojq"
 )
@@ -34,10 +33,7 @@ func (p jsonPayload) AsMap() map[string]any {
 	return result
 }
 
-func NewAppropriatePrinter(output io.Writer, jqFilter string) (payloadPrinter, error) {
-	enc := json.NewEncoder(output)
-	enc.SetIndent("", "  ")
-
+func NewAppropriatePrinter(enc *json.Encoder, jqFilter string) (payloadPrinter, error) {
 	var jqCode *gojq.Code
 	if jqFilter != "" {
 		var jqErr error
