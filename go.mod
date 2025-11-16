@@ -7,7 +7,7 @@ toolchain go1.25.1
 require (
 	github.com/Songmu/gitconfig v0.2.1
 	github.com/adrg/frontmatter v0.2.0
-	github.com/alecthomas/kong v1.12.1
+	github.com/alecthomas/kong v1.13.0
 	github.com/basemachina/lo v0.0.0-20250618012814-7ae329aee0ca
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/itchyny/gojq v0.12.17
