@@ -1,11 +1,11 @@
 module github.com/sushichan044/mdfm
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.25.1
 
 require (
-	github.com/Songmu/gitconfig v0.2.1
+	github.com/Songmu/gitconfig v0.2.2
 	github.com/adrg/frontmatter v0.2.0
 	github.com/alecthomas/kong v1.12.1
 	github.com/basemachina/lo v0.0.0-20250618012814-7ae329aee0ca
@@ -18,10 +18,10 @@ require (
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/cli/go-gh/v2 v2.12.1 // indirect
+	github.com/cli/go-gh/v2 v2.13.0 // indirect
 	github.com/cli/safeexec v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/itchyny/timefmt-go v0.1.6 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
